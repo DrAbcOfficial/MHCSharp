@@ -100,7 +100,7 @@ public unsafe struct CLEngineFucsStruct
     public delegate* unmanaged[Cdecl]<byte*, float, void> CVarSetValue = null;
     public delegate* unmanaged[Cdecl]<int> CmdArgc = null;
     public delegate* unmanaged[Cdecl]<int, byte*> CmdArgv = null;
-    public IntPtr ConPrintf = default; //不会抄
+    public delegate* unmanaged[Cdecl]<byte*, void> ConPrintf = default; //不会抄
     public IntPtr ConDPrintf = default;//不会抄
     public IntPtr ConNPrintf = default;//不会抄
     public IntPtr ConNXPrintf = default;//不会抄

@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Flurl.Http" Version="4.0.0-pre2" />
     <PackageReference Include="Silk.NET.Core" Version="2.16.0" />
     <PackageReference Include="Silk.NET.OpenGL" Version="2.16.0" />
   </ItemGroup>

@@ -26,25 +26,27 @@ public unsafe struct HookStruct
 public unsafe struct MetaHookApiStruct
 {
     public delegate* unmanaged[Cdecl]<HookStruct*, bool> UnHook = null;
-    public delegate* unmanaged[Cdecl]<void*, void*, void*, HookStruct*> InlineHook = null;
+    public delegate* unmanaged[Cdecl]<void*, void*, void*, void*> InlineHook = null;
     public delegate* unmanaged[Cdecl]<void*, int, int, void*, void*, HookStruct*> VFTHook = null;
     public delegate* unmanaged[Cdecl]<HModuleStruct, byte*, byte*, void*, void*, HookStruct*> IATHook = null;
     public delegate* unmanaged[Cdecl]<void*> GetClassFuncAddr = null;           // 不会抄
-    public delegate* unmanaged[Cdecl]<HModuleStruct, ulong> GetModuleBase = null;
-    public delegate* unmanaged[Cdecl]<HModuleStruct, ulong> GetModleSize = null;
+    public delegate* unmanaged[Cdecl]<HModuleStruct, uint> GetModuleBase = null;
+    public delegate* unmanaged[Cdecl]<HModuleStruct, uint> GetModleSize = null;
     public delegate* unmanaged[Cdecl]<HModuleStruct> GetEngineModule = null;
-    public delegate* unmanaged[Cdecl]<void*, ulong, byte*, ulong, void*> SearchPattern = null;
-    public delegate* unmanaged[Cdecl]<void*, ulong, void> WriteDWord = null;
-    public delegate* unmanaged[Cdecl]<void*, ulong> ReadDWord = null;
-    public delegate* unmanaged[Cdecl]<void*, byte*, ulong, ulong> WriteMemory = null;
-    public delegate* unmanaged[Cdecl]<void*, byte*, ulong, ulong> ReadMemory = null;
-    public delegate* unmanaged[Cdecl]<int*, int*, int*, bool*, ulong> GetVideoMode = null;
-    public delegate* unmanaged[Cdecl]<ulong> GetEngineBuildnum = null;
+    public delegate* unmanaged[Cdecl]<void*> GetEngineBase = null;
+    public delegate* unmanaged[Cdecl]<uint> GetEngineSize = null;
+    public delegate* unmanaged[Cdecl]<void*, uint, byte*, uint, void*> SearchPattern = null;
+    public delegate* unmanaged[Cdecl]<void*, uint, void> WriteDWord = null;
+    public delegate* unmanaged[Cdecl]<void*, uint> ReadDWord = null;
+    public delegate* unmanaged[Cdecl]<void*, byte*, uint, uint> WriteMemory = null;
+    public delegate* unmanaged[Cdecl]<void*, byte*, uint, uint> ReadMemory = null;
+    public delegate* unmanaged[Cdecl]<int*, int*, int*, bool*, uint> GetVideoMode = null;
+    public delegate* unmanaged[Cdecl]<uint> GetEngineBuildnum = null;
     public IntPtr GetEngineFactory = 0;             // 不会抄
-    public delegate* unmanaged[Cdecl]<void*, ulong, ulong> GetNextCallAddr = null;
+    public delegate* unmanaged[Cdecl]<void*, uint, uint> GetNextCallAddr = null;
     public delegate* unmanaged[Cdecl]<void*, byte, void> WriteByte = null;
     public delegate* unmanaged[Cdecl]<void*, byte> ReadByte = null;
-    public delegate* unmanaged[Cdecl]<void*, ulong, void> WriteNOP = null;
+    public delegate* unmanaged[Cdecl]<void*, uint, void> WriteNOP = null;
 
     public MetaHookApiStruct()
     {

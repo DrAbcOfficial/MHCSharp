@@ -17,14 +17,12 @@ public class OpenGL
         get
         {
             if (_gl == null)
-                throw new Exception("gl上下文为空");
+            {
+                GlMoudle = Native.LoadLibrary("opengl32.dll");
+                _gl = GL.GetApi(new Func<string, nint>(GetProcAddress));
+            }
             return _gl;
         }
-    }
-    public static void InitOpenGL()
-    {
-        GlMoudle = Native.LoadLibrary("opengl32.dll");
-        _gl = GL.GetApi(new Func<string, nint>(GetProcAddress));
     }
 
     static unsafe nint GetProcAddress(string name)
