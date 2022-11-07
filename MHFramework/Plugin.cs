@@ -36,7 +36,7 @@ public class Plugin
         ExportFunc->HudReDraw = &MyExportFuncs.Hud_Redraw;
         ExportFunc->Initialize = &MyExportFuncs.Initialize;
 
-        var GL_LOADTEXTURE_SIG = new byte[] { (byte)'\xA1',(byte)'\x2A',(byte)'\x2A',(byte)'\x2A',(byte)'\x2A',(byte)'\x8B',(byte)'\x4C',(byte)'\x24',(byte)'\x20',(byte)'\x8B',(byte)'\x54',(byte)'\x24',(byte)'\x1C',(byte)'\x50',(byte)'\x8B',(byte)'\x44',(byte)'\x24',(byte)'\x1C',(byte)'\x51',(byte)'\x8B',(byte)'\x4C',(byte)'\x24',(byte)'\x1C',(byte)'\x52',(byte)'\x8B',(byte)'\x54',(byte)'\x24',(byte)'\x1C',(byte)'\x50',(byte)'\x8B',(byte)'\x44',(byte)'\x24',(byte)'\x1C' };
+        var GL_LOADTEXTURE_SIG = new byte[] { 0xA1, 0x2A, 0x2A, 0x2A, 0x2A, 0x8B, 0x4C, 0x24, 0x20, 0x8B, 0x54, 0x24, 0x1C, 0x50, 0x8B, 0x44, 0x24, 0x1C, 0x51, 0x8B, 0x4C, 0x24, 0x1C, 0x52, 0x8B, 0x54, 0x24, 0x1C, 0x50, 0x8B, 0x44, 0x24, 0x1C };
         fixed(byte* SizePtr = GL_LOADTEXTURE_SIG)
         {
             var ptr = MetaHookApi.SearchPattern(MetaHookApi.GetEngineBase(), MetaHookApi.GetEngineSize(), SizePtr, (uint)GL_LOADTEXTURE_SIG.Length);
