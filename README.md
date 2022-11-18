@@ -1,5 +1,5 @@
 # MHCSharp
-将c#接入到Metahook中，同时导出了一些常用函数，导出了OpenGL函数
+将c#接入到Metahook中但是MetahookSV，同时导出了一些常用函数，导出了OpenGL函数
 ## 使用方式
 1. 下载运行时，解压后放到游戏根目录下
 链接：https://pan.baidu.com/s/1VkkS8cGtypkqwFX37S36rQ?pwd=1arq 
