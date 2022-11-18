@@ -66,7 +66,6 @@ void IPluginsV4::LoadClient(cl_exportfuncs_t *pExportFunc)
 	g_dwClientSize = g_pMetaHookAPI->GetClientSize();
 
 	CSharpLoadClient(pExportFunc);
-	
 }
 
 void IPluginsV4::ExitGame(int iResult)
@@ -92,6 +91,7 @@ const char completeVersion[] =
 
 const char *IPluginsV4::GetVersion(void)
 {
+	CSharpGetVersion();
 	return completeVersion;
 }
 

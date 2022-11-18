@@ -3,13 +3,14 @@
 #include <string>
 #include <array>
 #include <vector>
-#include <algorithm>
+#include <locale>
+#include <codecvt>
 
 #include <nethost.h>
 #include <coreclr_delegates.h>
 #include <hostfxr.h>
 #include <metahook.h>
-#include <Windows.h>
+
 
 extern cl_exportfuncs_t gExportfuncs;
 
@@ -30,11 +31,50 @@ void CSharpLoadEngine() {
 void CSharpExitGame(int iResult) {
 
 };
+void CSharpGetVersion() {
+
+}
+
 void InitClr(){
+    auto trim = [&](std::string& s, char c = ' ') {
+        s.erase(0, s.find_first_not_of(c));
+        s.erase(s.find_last_not_of(c) + 1);
+    };
+    auto findDotnetPath = [&]() {
+        DWORD dwLen = GetLogicalDriveStrings(0, NULL);	//获取系统字符串长度.
+        char* pszDriver = new char[dwLen];				//构建一个相应长度的数组.
+        GetLogicalDriveStrings(dwLen, pszDriver);		//获取盘符字符串.
+        std::array<char, MAX_PATH> buffer;
+        std::string runtimehead = "  Microsoft.WindowsDesktop.App 7";
+        std::string sdkhead = " Base Path:   ";
+        //Use powershell make everything fucking ok
+        std::shared_ptr<FILE> pipe(_popen(("powershell &\"" + std::string(pszDriver) + "Program Files (x86)\\dotnet\\" + std::string("dotnet.exe\" --info")).c_str(), "r"), _pclose);
+        std::vector<std::string> result(3);
+        while (!feof(pipe.get())) {
+            if (fgets(buffer.data(), MAX_PATH, pipe.get()) != nullptr) {
+                std::string temp = buffer.data();
+                if (temp.compare(0, runtimehead.size(), runtimehead) == 0) {
+                    size_t seven = temp.find_first_of('7');
+                    size_t left = temp.find_first_of('[');
+                    //runtime version
+                    result[1] = temp.substr(seven, left - seven - 1);
+                    //base path
+                    result[0] = temp.substr(left + 1, temp.size() - left - 38);
+                }
+                else  if (temp.compare(0, sdkhead.size(), sdkhead) == 0) {
+                    //sdk path
+                    size_t comma = temp.find_first_of(':');
+                    result[2] = temp.substr(comma + 4, temp.size() - comma);
+                }
+            }
+        }
+        return result;
+    };
     // 加载hostfxr.dll
-    HMODULE ClrDllHandle = LoadLibraryW(L"dotnet/host/fxr/7.0.0-rc.2.22472.3/hostfxr.dll");
+    auto turple = findDotnetPath();
+    HMODULE ClrDllHandle = LoadLibraryEx((turple[0] + "host\\fxr\\" + turple[1] + "\\hostfxr.dll").c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
     if (!ClrDllHandle) {
-        g_pMetaHookAPI->SysError("Can not find .NET 7 runtime!\nDownload .NET runtime:\nhttps://dotnet.microsoft.com/en-us/download/dotnet/7.0");
+        g_pMetaHookAPI->SysError("Can not find x86 .NET 7 sdk!\nDownload x86 .NET sdk:\nhttps://dotnet.microsoft.com/en-us/download/dotnet/7.0");
         return;
     }
     // 获取函数
@@ -45,11 +85,14 @@ void InitClr(){
         g_pMetaHookAPI->SysError("Can not find .NET 7 function ptr!");
         return;
     }
-
+    
+    auto to_wide_string = [&](const std::string & input){
+        std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+        return converter.from_bytes(input);
+    };
     // 初始化clr
-    if (InitializeFunPtr(L"dotnet/dotnet.runtimeconfig.json", nullptr, &ClrHandle)){
-
-        g_pMetaHookAPI->SysError("Can not find .NET 7 config!\ndotnet/dotnet.runtimeconfig.json");
+    if (InitializeFunPtr(to_wide_string(turple[2] + std::string("/dotnet.runtimeconfig.json")).c_str(), nullptr, &ClrHandle)) {
+        g_pMetaHookAPI->SysError("Can not find x86 .NET 7 config!\ndotnet/dotnet.runtimeconfig.json");
         CloseFunPtr(ClrHandle);
         return;
     }
@@ -66,6 +109,9 @@ void InitClr(){
         return;
     }
 
+    //读取pluginsharp.lst
+
+    //依次获取每个插件的入口点
     auto ret = LoadAsmAndGetFunPtr(L"dotnet/MHFramework/MHFramework.dll", L"MHFramework.Plugin, MHFramework", L"Init", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpInit);
     ret = LoadAsmAndGetFunPtr(L"dotnet/MHFramework/MHFramework.dll", L"MHFramework.Plugin, MHFramework", L"LoadClient", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpLoadClient);
 
