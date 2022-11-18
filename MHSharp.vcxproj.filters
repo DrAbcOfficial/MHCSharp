@@ -1,3 +1,48 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Clr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="exportfuncs.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\HLSDK\common\interface.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="parsemsg.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="plugins.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Clr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="exportfuncs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\HLSDK\common\interface.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\metahook.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="parsemsg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="plugins.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{a1dad969-afe4-4d52-9b83-479aa8478806}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{181cd1db-942e-4ed5-a81f-ccb1321617ee}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
 </Project>
