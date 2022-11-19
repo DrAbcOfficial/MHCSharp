@@ -55,7 +55,7 @@ void IPluginsV4::LoadEngine(cl_enginefunc_t *pEngfuncs)
 
 	memcpy(&gEngfuncs, pEngfuncs, sizeof(gEngfuncs));
 
-	CSharpLoadEngine();
+	CSharpLoadEngine(pEngfuncs);
 }
 
 void IPluginsV4::LoadClient(cl_exportfuncs_t *pExportFunc)

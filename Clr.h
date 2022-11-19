@@ -7,7 +7,7 @@ typedef struct sharpplugin_s {
 	void (*PluginInit) (metahook_api_t* pAPI, mh_interface_t* pInterface, mh_enginesave_t* pSave);
 	void (*LoadClient) (cl_exportfuncs_s*);
 	void (*ShutDown) ();
-	void (*LoadEngine) ();
+	void (*LoadEngine) (cl_enginefunc_t* pEngfunc);
 	void (*ExitGame) (int iResult);
 	char* (*GetVersion) ();
 }sharpplugin_t;
@@ -20,6 +20,6 @@ void FiniClr();
 void CSharpInit(metahook_api_t* pAPI, mh_interface_t* pInterface, mh_enginesave_t* pSave);
 void CSharpLoadClient(cl_exportfuncs_s* pExportFunc);
 void CSharpShutDown();
-void CSharpLoadEngine();
+void CSharpLoadEngine(cl_enginefunc_t* pEngfuncs);
 void CSharpExitGame(int iResult);
 void CSharpGetVersion();
