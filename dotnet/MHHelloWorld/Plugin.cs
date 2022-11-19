@@ -35,6 +35,7 @@ public class Plugin
     {
         MyExportFuncs.IExportFuncs = *IExportFunc;
         // 必须覆盖，在这个事件中驱动单线程协程的调度器
+        //TODO: Move his to one dll, and call other dll from that one
         IExportFunc->HudFrame = &MyExportFuncs.HudFrame;
 
         IExportFunc->HudInit = &MyExportFuncs.HudInit;
@@ -52,12 +53,9 @@ public class Plugin
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static unsafe IntPtr GetVersion()
+    public static unsafe byte* GetVersion()
     {
         string version = "This from C#! WOW!";
-        byte[] encodedBytes = Encoding.UTF8.GetBytes(version);
-        IntPtr wordPtr = Marshal.AllocHGlobal(encodedBytes.Length);
-        Marshal.Copy(encodedBytes, 0, wordPtr, encodedBytes.Length);
-        return wordPtr;
+        return Utility.GetNativeString(version);
     }
 }

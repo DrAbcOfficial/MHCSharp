@@ -62,6 +62,8 @@ void IPluginsV4::LoadClient(cl_exportfuncs_t *pExportFunc)
 {
 	memcpy(&gExportfuncs, pExportFunc, sizeof(gExportfuncs));
 
+	pExportFunc->HUD_Init = HUD_Init;
+
 	g_dwClientBase = g_pMetaHookAPI->GetClientBase();
 	g_dwClientSize = g_pMetaHookAPI->GetClientSize();
 

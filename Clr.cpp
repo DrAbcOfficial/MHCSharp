@@ -2,7 +2,6 @@
 #include <memory>
 #include <string>
 #include <array>
-#include <vector>
 #include <locale>
 #include <codecvt>
 #include <iostream>

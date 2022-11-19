@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 
 #define MAX_SHARPPLUGIN_NAME 32
 
@@ -11,6 +12,8 @@ typedef struct sharpplugin_s {
 	void (*ExitGame) (int iResult);
 	char* (*GetVersion) ();
 }sharpplugin_t;
+
+extern std::vector<sharpplugin_t*> arySharpPlugins;
 
 void InitClr();
 
