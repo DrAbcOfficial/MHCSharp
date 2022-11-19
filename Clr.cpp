@@ -5,14 +5,21 @@
 #include <vector>
 #include <locale>
 #include <codecvt>
+#include <iostream>
+#include <fstream>
 
 #include <nethost.h>
 #include <coreclr_delegates.h>
 #include <hostfxr.h>
 #include <metahook.h>
 
+#include <Clr.h>
+
+using namespace std;
 
 extern cl_exportfuncs_t gExportfuncs;
+
+vector<sharpplugin_t*> arySharpPlugins = {};
 
 hostfxr_handle ClrHandle = 0;
 hostfxr_close_fn CloseFunPtr = nullptr;
@@ -36,7 +43,7 @@ void CSharpGetVersion() {
 }
 
 void InitClr(){
-    auto trim = [&](std::string& s, char c = ' ') {
+    auto trim = [&](string& s, char c = ' ') {
         s.erase(0, s.find_first_not_of(c));
         s.erase(s.find_last_not_of(c) + 1);
     };
@@ -44,15 +51,15 @@ void InitClr(){
         DWORD dwLen = GetLogicalDriveStrings(0, NULL);	//获取系统字符串长度.
         char* pszDriver = new char[dwLen];				//构建一个相应长度的数组.
         GetLogicalDriveStrings(dwLen, pszDriver);		//获取盘符字符串.
-        std::array<char, MAX_PATH> buffer;
-        std::string runtimehead = "  Microsoft.WindowsDesktop.App 7";
-        std::string sdkhead = " Base Path:   ";
+        array<char, MAX_PATH> buffer;
+        string runtimehead = "  Microsoft.WindowsDesktop.App 7";
+        string sdkhead = " Base Path:   ";
         //Use powershell make everything fucking ok
-        std::shared_ptr<FILE> pipe(_popen(("powershell &\"" + std::string(pszDriver) + "Program Files (x86)\\dotnet\\" + std::string("dotnet.exe\" --info")).c_str(), "r"), _pclose);
-        std::vector<std::string> result(3);
+        shared_ptr<FILE> pipe(_popen(("powershell &\"" + string(pszDriver) + "Program Files (x86)\\dotnet\\" + string("dotnet.exe\" --info")).c_str(), "r"), _pclose);
+        vector<string> result(3);
         while (!feof(pipe.get())) {
             if (fgets(buffer.data(), MAX_PATH, pipe.get()) != nullptr) {
-                std::string temp = buffer.data();
+                string temp = buffer.data();
                 if (temp.compare(0, runtimehead.size(), runtimehead) == 0) {
                     size_t seven = temp.find_first_of('7');
                     size_t left = temp.find_first_of('[');
@@ -63,8 +70,8 @@ void InitClr(){
                 }
                 else  if (temp.compare(0, sdkhead.size(), sdkhead) == 0) {
                     //sdk path
-                    size_t comma = temp.find_first_of(':');
-                    result[2] = temp.substr(comma + 4, temp.size() - comma);
+                    size_t comma = temp.find_first_of(':') + 4;
+                    result[2] = temp.substr(comma, temp.find_first_of('\n') - comma - 1);
                 }
             }
         }
@@ -86,12 +93,12 @@ void InitClr(){
         return;
     }
     
-    auto to_wide_string = [&](const std::string & input){
-        std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    auto to_wide_string = [&](const string & input){
+        wstring_convert<codecvt_utf8<wchar_t>> converter;
         return converter.from_bytes(input);
     };
     // 初始化clr
-    if (InitializeFunPtr(to_wide_string(turple[2] + std::string("/dotnet.runtimeconfig.json")).c_str(), nullptr, &ClrHandle)) {
+    if (InitializeFunPtr(to_wide_string(turple[2] + string("/dotnet.runtimeconfig.json")).c_str(), nullptr, &ClrHandle)) {
         g_pMetaHookAPI->SysError("Can not find x86 .NET 7 config!\ndotnet/dotnet.runtimeconfig.json");
         CloseFunPtr(ClrHandle);
         return;
@@ -110,15 +117,51 @@ void InitClr(){
     }
 
     //读取pluginsharp.lst
+#define DOTNET_PLUGIN_LIST "metahook/configs/plugins_dotnet.lst"
+    ifstream fp;
+    fp.open(DOTNET_PLUGIN_LIST, ios::in);
+    if (!fp.good())
+        return;
+    while (!fp.eof()) {
+        string str;
+        getline(fp, str);
+        if (str.size() <= MAX_SHARPPLUGIN_NAME) {
+            sharpplugin_t* newPlugin = new sharpplugin_t();
+            strcpy_s(newPlugin->Name, str.c_str());
+            arySharpPlugins.push_back(newPlugin);
+        }
+    }
+    fp.close();
 
     //依次获取每个插件的入口点
-    auto ret = LoadAsmAndGetFunPtr(L"dotnet/MHFramework/MHFramework.dll", L"MHFramework.Plugin, MHFramework", L"Init", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpInit);
-    ret = LoadAsmAndGetFunPtr(L"dotnet/MHFramework/MHFramework.dll", L"MHFramework.Plugin, MHFramework", L"LoadClient", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpLoadClient);
+#define DOTNET_PLUGIN_PATH "metahook/plugins/dotnet/%s.dll"
+#define DOTNET_PLUGIN_SIGN "%s.Plugin, %s"
+    for (auto iter = arySharpPlugins.begin(); iter != arySharpPlugins.end();iter++) {
+        auto plug = *iter;
+        char path[MAX_PATH];
+        sprintf(path, DOTNET_PLUGIN_PATH, plug->Name);
+        if (!ifstream(path).good()) {
+            delete plug;
+            *iter = nullptr;
+            arySharpPlugins.erase(iter);
+            return;
+        }
 
-    ret = LoadAsmAndGetFunPtr(L"dotnet/MHFramework/MHFramework.dll", L"MHFramework.Plugin, MHFramework", L"ShutDown", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpShutDown);
+        wchar_t* wpath = new wchar_t[MAX_PATH];
+        MultiByteToWideChar(CP_ACP, 0, path, -1, wpath, MAX_PATH);
 
-    ret = LoadAsmAndGetFunPtr(L"dotnet/MHFramework/MHFramework.dll", L"MHFramework.Plugin, MHFramework", L"LoadEngine", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpLoadEngine);
-    ret = LoadAsmAndGetFunPtr(L"dotnet/MHFramework/MHFramework.dll", L"MHFramework.Plugin, MHFramework", L"ExitGame", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpExitGame);
+        char sign[MAX_PATH];
+        sprintf(sign, DOTNET_PLUGIN_SIGN, plug->Name);
+        wchar_t* wsign = new wchar_t[MAX_PATH];
+        MultiByteToWideChar(CP_ACP, 0, sign, -1, wsign, MAX_PATH);
+
+        auto ret = LoadAsmAndGetFunPtr(wpath, wsign, L"Init", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&plug->PluginInit);
+        ret = LoadAsmAndGetFunPtr(wpath, wsign, L"LoadClient", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&plug->LoadClient);
+        ret = LoadAsmAndGetFunPtr(wpath, wsign, L"ShutDown", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&plug->ShutDown);
+        ret = LoadAsmAndGetFunPtr(wpath, wsign, L"LoadEngine", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&plug->LoadEngine);
+        ret = LoadAsmAndGetFunPtr(wpath, wsign, L"ExitGame", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&plug->ExitGame);
+        ret = LoadAsmAndGetFunPtr(wpath, wsign, L"GetVersion", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&plug->GetVersion);
+    }
   }
 
 
