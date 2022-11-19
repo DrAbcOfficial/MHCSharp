@@ -4,3 +4,8 @@
 
 /Debug
 /.vs
+/dotnet/MHHelloWorld/bin
+/dotnet/MHHelloWorld/obj
+/dotnet/MHHelloWorld/Properties/PublishProfiles
+/dotnet/MHSharpLibrary/bin
+/dotnet/MHSharpLibrary/obj
