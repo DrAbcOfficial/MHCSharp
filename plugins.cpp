@@ -1,5 +1,4 @@
 #include <metahook.h>
-#include "exportfuncs.h"
 #include "plugins.h"
 
 #include "Clr.h"
@@ -53,16 +52,12 @@ void IPluginsV4::LoadEngine(cl_enginefunc_t *pEngfuncs)
 	g_dwEngineDataBase = g_pMetaHookAPI->GetSectionByName(g_dwEngineBase, ".data\x0\x0\x0", &g_dwEngineDataSize);
 	g_dwEngineRdataBase = g_pMetaHookAPI->GetSectionByName(g_dwEngineBase, ".rdata\x0\x0", &g_dwEngineRdataSize);
 
-	memcpy(&gEngfuncs, pEngfuncs, sizeof(gEngfuncs));
-
 	CSharpLoadEngine(pEngfuncs);
 }
 
 void IPluginsV4::LoadClient(cl_exportfuncs_t *pExportFunc)
 {
 	memcpy(&gExportfuncs, pExportFunc, sizeof(gExportfuncs));
-
-	pExportFunc->HUD_Init = HUD_Init;
 
 	g_dwClientBase = g_pMetaHookAPI->GetClientBase();
 	g_dwClientSize = g_pMetaHookAPI->GetClientSize();
@@ -75,26 +70,9 @@ void IPluginsV4::ExitGame(int iResult)
 	CSharpExitGame(iResult);
 }
 
-const char completeVersion[] =
-{
-	BUILD_YEAR_CH0, BUILD_YEAR_CH1, BUILD_YEAR_CH2, BUILD_YEAR_CH3,
-	'-',
-	BUILD_MONTH_CH0, BUILD_MONTH_CH1,
-	'-',
-	BUILD_DAY_CH0, BUILD_DAY_CH1,
-	'T',
-	BUILD_HOUR_CH0, BUILD_HOUR_CH1,
-	':',
-	BUILD_MIN_CH0, BUILD_MIN_CH1,
-	':',
-	BUILD_SEC_CH0, BUILD_SEC_CH1,
-	'\0'
-};
-
 const char *IPluginsV4::GetVersion(void)
 {
-	CSharpGetVersion();
-	return completeVersion;
+	return CSharpGetVersion();
 }
 
 EXPOSE_SINGLE_INTERFACE(IPluginsV4, IPluginsV4, METAHOOK_PLUGIN_API_VERSION_V4);

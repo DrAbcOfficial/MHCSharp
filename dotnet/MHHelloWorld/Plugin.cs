@@ -9,53 +9,42 @@ using System.Drawing;
 using MHSharpLibrary.SDK;
 using MHSharpLibrary.Util;
 using System.IO;
+using MHSharpLibrary;
 
 namespace MHHelloWorld;
 
-public class Plugin
+public class CSharpPlugin
 {
     public static MetaHookApiStruct MetaHookApi;
     public static CLEngineFucsStruct IEngineFucs;
 
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static unsafe void Init(MetaHookApiStruct* Api, void* Interface, MHEngineSaveStrct* Save)
+    public unsafe void PluginInit(MetaHookApiStruct* Api, void* Interface, MHEngineSaveStrct* Save)
     {
         MetaHookApi = *Api;
-        MyExportFuncs.Init();
     }
 
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static unsafe void LoadEngine(CLEngineFucsStruct* lEngineFucs)
+    public unsafe void LoadEngine(CLEngineFucsStruct* lEngineFucs)
     {
         IEngineFucs = *lEngineFucs;
     }
 
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static unsafe void LoadClient(ClExportFuncsStruct* IExportFunc)
+    public unsafe void LoadClient(ClExportFuncsStruct* IExportFunc)
     {
-        MyExportFuncs.IExportFuncs = *IExportFunc;
-        // 必须覆盖，在这个事件中驱动单线程协程的调度器
-        //TODO: Move his to one dll, and call other dll from that one
-        IExportFunc->HudFrame = &MyExportFuncs.HudFrame;
-
         IExportFunc->HudInit = &MyExportFuncs.HudInit;
     }
 
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static void ShutDown()
+    public void ShutDown()
     {
+        
     }
 
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static void ExitGame(int Result)
+    public void ExitGame(int Result)
     {
-
+        
     }
 
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static unsafe byte* GetVersion()
+    public string GetVersion()
     {
-        string version = "This from C#! WOW!";
-        return Utility.GetNativeString(version);
+        return "2022-11-20";
     }
 }

@@ -4,13 +4,7 @@
     <ClCompile Include="Clr.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="exportfuncs.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\HLSDK\common\interface.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="parsemsg.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="plugins.cpp">
@@ -21,16 +15,10 @@
     <ClInclude Include="Clr.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="exportfuncs.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\HLSDK\common\interface.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\..\metahook.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="parsemsg.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="plugins.h">

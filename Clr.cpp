@@ -6,6 +6,7 @@
 #include <codecvt>
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 #include <nethost.h>
 #include <coreclr_delegates.h>
@@ -18,38 +19,15 @@ using namespace std;
 
 extern cl_exportfuncs_t gExportfuncs;
 
-vector<sharpplugin_t*> arySharpPlugins = {};
-
 hostfxr_handle ClrHandle = 0;
 hostfxr_close_fn CloseFunPtr = nullptr;
-void CSharpInit(metahook_api_t* pAPI, mh_interface_t* pInterface, mh_enginesave_t* pSave) {
-    for (auto p : arySharpPlugins) {
-        p->PluginInit(pAPI, pInterface, pSave);
-    }
-};
-void CSharpLoadEngine(cl_enginefunc_t* pEngfuncs) {
-    for (auto p : arySharpPlugins) {
-        p->LoadEngine(pEngfuncs);
-    }
-};
-void CSharpLoadClient(cl_exportfuncs_s* pExportFunc) {
-    for (auto p : arySharpPlugins) {
-        p->LoadClient(pExportFunc);
-    }
-};
-void CSharpShutDown() {
-    for (auto p : arySharpPlugins) {
-        p->ShutDown();
-    }
-};
-void CSharpExitGame(int iResult) {
-    for (auto p : arySharpPlugins) {
-        p->ExitGame(iResult);
-    }
-};
-void CSharpGetVersion() {
 
-}
+void (*CSharpInit)(metahook_api_t* pAPI, mh_interface_t* pInterface, mh_enginesave_t* pSave) = nullptr;
+void (*CSharpLoadClient)(cl_exportfuncs_s* pExportFunc) = nullptr;
+void (*CSharpShutDown)() = nullptr;
+void (*CSharpLoadEngine)(cl_enginefunc_t* pEngfuncs) = nullptr;
+void (*CSharpExitGame)(int iResult) = nullptr;
+char* (*CSharpGetVersion)() = nullptr;
 
 void InitClr(){
     auto trim = [&](string& s, char c = ' ') {
@@ -125,54 +103,20 @@ void InitClr(){
         return;
     }
 
-    //读取pluginsharp.lst
-#define DOTNET_PLUGIN_LIST "svencoop/metahook/configs/plugins_dotnet.lst"
-    ifstream fp;
-    fp.open(DOTNET_PLUGIN_LIST, ios::in);
-    if (!fp.good())
-        return;
-    while (!fp.eof()) {
-        string str;
-        getline(fp, str);
-        if (str.size() <= MAX_SHARPPLUGIN_NAME) {
-            sharpplugin_t* newPlugin = new sharpplugin_t();
-            strcpy_s(newPlugin->Name, str.c_str());
-            arySharpPlugins.push_back(newPlugin);
-        }
-    }
-    fp.close();
-
     //依次获取每个插件的入口点
-#define DOTNET_PLUGIN_PATH "svencoop/metahook/plugins/dotnet/%s/%s.dll"
-#define DOTNET_PLUGIN_SIGN "%s.Plugin, %s"
-    for (auto iter = arySharpPlugins.begin(); iter != arySharpPlugins.end();iter++) {
-        auto plug = *iter;
-        char path[MAX_PATH];
-        sprintf(path, DOTNET_PLUGIN_PATH, plug->Name, plug->Name);
-        if (!ifstream(path).good()) {
-            delete plug;
-            *iter = nullptr;
-            arySharpPlugins.erase(iter);
-            return;
-        }
-
-        wchar_t* wpath = new wchar_t[MAX_PATH];
-        MultiByteToWideChar(CP_ACP, 0, path, -1, wpath, MAX_PATH);
-
-        char sign[MAX_PATH];
-        sprintf(sign, DOTNET_PLUGIN_SIGN, plug->Name, plug->Name);
-        wchar_t* wsign = new wchar_t[MAX_PATH];
-        MultiByteToWideChar(CP_ACP, 0, sign, -1, wsign, MAX_PATH);
-
-        auto ret = LoadAsmAndGetFunPtr(wpath, wsign, L"Init", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&plug->PluginInit);
-        ret = LoadAsmAndGetFunPtr(wpath, wsign, L"LoadClient", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&plug->LoadClient);
-        ret = LoadAsmAndGetFunPtr(wpath, wsign, L"ShutDown", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&plug->ShutDown);
-        ret = LoadAsmAndGetFunPtr(wpath, wsign, L"LoadEngine", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&plug->LoadEngine);
-        ret = LoadAsmAndGetFunPtr(wpath, wsign, L"ExitGame", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&plug->ExitGame);
-        ret = LoadAsmAndGetFunPtr(wpath, wsign, L"GetVersion", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&plug->GetVersion);
+#define DOTNET_PLUGIN_PATH L"svencoop/metahook/plugins/dotnet/MHSharpLibrary/MHSharpLibrary.dll"
+#define DOTNET_PLUGIN_SIGN L"MHSharpLibrary.Plugin, MHSharpLibrary"
+    int ret = LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"Init", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpInit);
+    if (ret != 0) {
+        g_pMetaHookAPI->SysError("Can not MHSharpLibrary in that path!\nsvencoop/metahook/plugins/dotnet/MHSharpLibrary/MHSharpLibrary.dll");
+        return;
     }
+    ret = LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"LoadClient", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpLoadClient);
+    ret = LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"ShutDown", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpShutDown);
+    ret = LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"LoadEngine", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpLoadEngine);
+    ret = LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"ExitGame", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpExitGame);
+    ret = LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"GetVersion", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpGetVersion);
   }
-
 
 void FiniClr()
 {
