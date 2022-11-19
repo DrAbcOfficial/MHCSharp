@@ -6,9 +6,9 @@ cl_enginefunc_t gEngfuncs;
 
 void SharpPluginList() {
 	size_t index = 0;
-	gEngfuncs.Con_Printf("|index|\t\tplugin name|\t\tplugin version|\n");
+	gEngfuncs.Con_Printf("|index|         plugin name|      plugin version|\n");
 	for (auto p : arySharpPlugins) {
-		gEngfuncs.Con_Printf("|\t%d|\t\t%s|\t\t%s|\n", index, p->Name, p->GetVersion());
+		gEngfuncs.Con_Printf("|%5d|%20s|%20s|\n", index, p->Name, p->GetVersion());
 		index++;
 	}
 }
