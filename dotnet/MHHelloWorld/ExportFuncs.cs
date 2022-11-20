@@ -24,7 +24,6 @@ public class MyExportFuncs
         CSharpPlugin.IEngineFucs.ConsolePrint(cplain);
     }
 
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     public unsafe static void HudInit()
     {
         string message = "mh_fuck";

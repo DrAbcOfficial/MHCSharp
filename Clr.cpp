@@ -104,11 +104,11 @@ void InitClr(){
     }
 
     //依次获取每个插件的入口点
-#define DOTNET_PLUGIN_PATH L"svencoop/metahook/plugins/dotnet/MHSharpLibrary/MHSharpLibrary.dll"
-#define DOTNET_PLUGIN_SIGN L"MHSharpLibrary.Plugin, MHSharpLibrary"
+#define DOTNET_PLUGIN_PATH L"svencoop/metahook/plugins/dotnet/MHSharpFrame/MHSharpFrame.dll"
+#define DOTNET_PLUGIN_SIGN L"MHSharpFrame.Plugin, MHSharpFrame"
     int ret = LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"Init", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpInit);
     if (ret != 0) {
-        g_pMetaHookAPI->SysError("Can not MHSharpLibrary in that path!\nsvencoop/metahook/plugins/dotnet/MHSharpLibrary/MHSharpLibrary.dll");
+        g_pMetaHookAPI->SysError("Can not MHSharpFrame in that path!\nsvencoop/metahook/plugins/dotnet/MHSharpFrame/MHSharpFrame.dll");
         return;
     }
     ret = LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"LoadClient", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpLoadClient);

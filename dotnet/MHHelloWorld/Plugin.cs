@@ -6,10 +6,11 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using MHSharpLibrary;
+using MHSharpLibrary.Event;
 using MHSharpLibrary.SDK;
 using MHSharpLibrary.Util;
 using System.IO;
-using MHSharpLibrary;
 
 namespace MHHelloWorld;
 
@@ -18,29 +19,19 @@ public class CSharpPlugin
     public static MetaHookApiStruct MetaHookApi;
     public static CLEngineFucsStruct IEngineFucs;
 
-    public unsafe void PluginInit(MetaHookApiStruct* Api, void* Interface, MHEngineSaveStrct* Save)
+    public void PluginInit(MetaHookApiStruct Api, IntPtr Interface, MHEngineSaveStrct Save)
     {
-        MetaHookApi = *Api;
+        MetaHookApi =  Api;
     }
 
-    public unsafe void LoadEngine(CLEngineFucsStruct* lEngineFucs)
+    public void LoadEngine(CLEngineFucsStruct lEngineFucs)
     {
-        IEngineFucs = *lEngineFucs;
+        IEngineFucs = lEngineFucs;
     }
 
-    public unsafe void LoadClient(ClExportFuncsStruct* IExportFunc)
+    public void LoadClient(CExportEvents IExportFunc)
     {
-        IExportFunc->HudInit = &MyExportFuncs.HudInit;
-    }
-
-    public void ShutDown()
-    {
-        
-    }
-
-    public void ExitGame(int Result)
-    {
-        
+        IExportFunc.HudInit = MyExportFuncs.HudInit;
     }
 
     public string GetVersion()

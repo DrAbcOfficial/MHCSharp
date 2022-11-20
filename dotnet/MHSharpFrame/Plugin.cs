@@ -1,10 +1,11 @@
-﻿using MHSharpLibrary.SDK;
+﻿using MHSharpLibrary.Event;
+using MHSharpLibrary.SDK;
 using MHSharpLibrary.Util;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace MHSharpLibrary;
+namespace MHSharpFrame;
 
 public class CSharpPlugin
 {
@@ -31,7 +32,7 @@ public class Plugin
     public static CLEngineFucsStruct IEngineFucs;
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static unsafe void Init(MetaHookApiStruct* Api, void* Interface, MHEngineSaveStrct* Save)
+    public static unsafe void Init(MetaHookApiStruct* Api, MHInterfaceStruct* Interface, MHEngineSaveStrct* Save)
     {
         MyExportFuncs.Init();
         //Load every Dll
@@ -67,11 +68,7 @@ public class Plugin
         }
         foreach (CSharpPlugin i in sharpPlugins)
         {
-            if (i.PluginInit != null)
-            {
-                object[] parames = { (IntPtr)Api, (IntPtr)Interface, (IntPtr)Save };
-                i.PluginInit.Invoke(i.Handle, parames);
-            }
+            i.PluginInit?.Invoke(i.Handle, new object[] { *Api, *Interface, *Save });
         }
     }
 
@@ -81,11 +78,7 @@ public class Plugin
         IEngineFucs = *lEngineFucs;
         foreach (CSharpPlugin i in sharpPlugins)
         {
-            if (i.LoadEngine != null)
-            {
-                object[] parames = { (IntPtr)lEngineFucs };
-                i.LoadEngine.Invoke(i.Handle, parames);
-            }
+            i.LoadEngine?.Invoke(i.Handle, new object[] { *lEngineFucs });
         }
     }
 
@@ -97,12 +90,21 @@ public class Plugin
         IExportFunc->HudFrame = &MyExportFuncs.HudFrame;
         //注册
         IExportFunc->HudInit = &MyExportFuncs.HudInit;
+
         foreach (CSharpPlugin i in sharpPlugins)
         {
             if (i.LoadClient != null)
             {
-                object[] parames = { (IntPtr)IExportFunc };
-                i.LoadClient.Invoke(i.Handle, parames);
+                CExportEvents exportTable = new CExportEvents();
+                i.LoadClient.Invoke(i.Handle, new object[] { exportTable });
+
+                Type type = typeof(CExportEvents);
+                PropertyInfo[] props = type.GetProperties();
+                foreach (PropertyInfo p in props)
+                {
+                    type.GetProperty(p.Name)?.GetValue(MyExportFuncs.pEvent);
+                    //TODO: 这里需要使用反射
+                }
             }
         }
     }
@@ -112,11 +114,7 @@ public class Plugin
     {
         foreach (CSharpPlugin i in sharpPlugins)
         {
-            if (i.ShutDown != null)
-            {
-                object[] parames = { };
-                i.ShutDown.Invoke(i.Handle, parames);
-            }
+            i.ShutDown?.Invoke(i.Handle, new object[] { });
         }
     }
 
@@ -125,11 +123,7 @@ public class Plugin
     {
         foreach (CSharpPlugin i in sharpPlugins)
         {
-            if (i.ExitGame != null)
-            {
-                object[] parames = { Result };
-                i.ExitGame.Invoke(i.Handle, parames);
-            }
+            i.ExitGame?.Invoke(i.Handle, new object[] { Result });
         }
     }
 

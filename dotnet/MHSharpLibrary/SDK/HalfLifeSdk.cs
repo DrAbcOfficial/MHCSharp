@@ -370,3 +370,8 @@ public unsafe struct EngineStudioApiStruct
 {
 
 }
+
+public unsafe struct MHInterfaceStruct
+{
+
+}
