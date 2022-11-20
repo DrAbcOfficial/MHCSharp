@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
-
 namespace MHSharpLibrary.Util
 {
     public class MHUtility
     {
+        /// <summary>
+        /// 需要在游戏中长时间存在时使用这个，比如添加Command到控制台
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="funcs"></param>
         public static unsafe void SendNativeString(string str, Action<IntPtr> funcs)
         {
             IntPtr ptr = Marshal.StringToHGlobalAnsi(str);

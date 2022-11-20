@@ -34,34 +34,93 @@ void InitClr(){
         s.erase(0, s.find_first_not_of(c));
         s.erase(s.find_last_not_of(c) + 1);
     };
+    auto split = [&](const string& str, char delim) {
+        size_t previous = 0;
+        size_t current = str.find(delim);
+        vector<string> elems;
+        while (current != string::npos) {
+            if (current > previous) {
+                elems.push_back(str.substr(previous, current - previous));
+            }
+            previous = current + 1;
+            current = str.find(delim, previous);
+        }
+        if (previous != str.size()) {
+            elems.push_back(str.substr(previous));
+        }
+        return elems;
+    };
     auto findDotnetPath = [&]() {
+        vector<string> result(3);
         DWORD dwLen = GetLogicalDriveStrings(0, NULL);	//获取系统字符串长度.
         char* pszDriver = new char[dwLen];				//构建一个相应长度的数组.
         GetLogicalDriveStrings(dwLen, pszDriver);		//获取盘符字符串.
-        array<char, MAX_PATH> buffer;
         string runtimehead = "  Microsoft.WindowsDesktop.App 7";
         string sdkhead = " Base Path:   ";
-        //Use powershell make everything fucking ok
-        shared_ptr<FILE> pipe(_popen(("powershell &\"" + string(pszDriver) + "Program Files (x86)\\dotnet\\" + string("dotnet.exe\" --info")).c_str(), "r"), _pclose);
-        vector<string> result(3);
-        while (!feof(pipe.get())) {
-            if (fgets(buffer.data(), MAX_PATH, pipe.get()) != nullptr) {
-                string temp = buffer.data();
-                if (temp.compare(0, runtimehead.size(), runtimehead) == 0) {
-                    size_t seven = temp.find_first_of('7');
-                    size_t left = temp.find_first_of('[');
-                    //runtime version
-                    result[1] = temp.substr(seven, left - seven - 1);
-                    //base path
-                    result[0] = temp.substr(left + 1, temp.size() - left - 38);
-                }
-                else  if (temp.compare(0, sdkhead.size(), sdkhead) == 0) {
-                    //sdk path
-                    size_t comma = temp.find_first_of(':') + 4;
-                    result[2] = temp.substr(comma, temp.find_first_of('\n') - comma - 1);
-                }
+
+        string cmd = string(pszDriver) + "Program Files (x86)\\dotnet\\" + string("dotnet.exe --info");
+
+        SECURITY_ATTRIBUTES sa;
+        HANDLE hRead, hWrite;
+        sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+        sa.lpSecurityDescriptor = NULL;
+        sa.bInheritHandle = TRUE;
+
+        if (!CreatePipe(&hRead, &hWrite, &sa, 0)) {
+            g_pMetaHookAPI->SysError("Can not open pipe for searching...\nLast Error: %d", GetLastError());
+            return result;
+        }
+
+        STARTUPINFO si;
+        PROCESS_INFORMATION pi;
+        ZeroMemory(&si, sizeof(STARTUPINFO));
+
+        si.cb = sizeof(STARTUPINFO);
+        GetStartupInfo(&si);
+        si.hStdError = hWrite;
+        si.hStdOutput = hWrite;
+        si.wShowWindow = SW_HIDE;
+        si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+
+        char cmdline[200] = { 0 };
+        sprintf(cmdline, "%s", cmd.c_str());
+        if (!CreateProcess(NULL, cmdline, NULL, NULL, TRUE, NULL, NULL, NULL, &si, &pi)) {
+            CloseHandle(hRead);
+            CloseHandle(hWrite);
+            g_pMetaHookAPI->SysError("Can create process for searching...\nLast Error: %d", GetLastError());
+            return result;
+        }
+        CloseHandle(hWrite);
+        char buffer[4096] = { 0 };
+        DWORD bytesRead;
+        string temp = "";
+        while (true) {
+            if (!ReadFile(hRead, buffer, 4095, &bytesRead, NULL)) 
+                break;
+            temp.append(buffer, bytesRead);
+        }
+        vector<string> aryT = split(temp, '\n');
+        for (string s : aryT) {
+            if (s.compare(0, runtimehead.size(), runtimehead) == 0) {
+                size_t seven = s.find_first_of('7');
+                size_t left = s.find_first_of('[');
+                //runtime version
+                result[1] = s.substr(seven, left - seven - 1);
+                //base path
+                result[0] = s.substr(left + 1, s.size() - left - 38);
+            }
+            else  if (s.compare(0, sdkhead.size(), sdkhead) == 0) {
+                //sdk path
+                size_t comma = s.find_first_of(':') + 4;
+                result[2] = s.substr(comma, s.find_first_of('\n') - comma - 1);
+                trim(result[2], '\r');
             }
         }
+        DWORD exitCode = 0;
+        GetExitCodeProcess(pi.hProcess, &exitCode);
+        CloseHandle(hRead);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
         return result;
     };
     // 加载hostfxr.dll
