@@ -165,16 +165,15 @@ void InitClr(){
     //依次获取每个插件的入口点
 #define DOTNET_PLUGIN_PATH L"svencoop/metahook/plugins/dotnet/MHSharpFrame/MHSharpFrame.dll"
 #define DOTNET_PLUGIN_SIGN L"MHSharpFrame.Plugin, MHSharpFrame"
-    int ret = LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"Init", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpInit);
-    if (ret != 0) {
+    if (LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"Init", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpInit) != 0) {
         g_pMetaHookAPI->SysError("Can not MHSharpFrame in that path!\nsvencoop/metahook/plugins/dotnet/MHSharpFrame/MHSharpFrame.dll");
         return;
     }
-    ret = LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"LoadClient", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpLoadClient);
-    ret = LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"ShutDown", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpShutDown);
-    ret = LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"LoadEngine", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpLoadEngine);
-    ret = LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"ExitGame", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpExitGame);
-    ret = LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"GetVersion", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpGetVersion);
+    LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"LoadClient", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpLoadClient);
+    LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"ShutDown", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpShutDown);
+    LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"LoadEngine", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpLoadEngine);
+    LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"ExitGame", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpExitGame);
+    LoadAsmAndGetFunPtr(DOTNET_PLUGIN_PATH, DOTNET_PLUGIN_SIGN, L"GetVersion", UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&CSharpGetVersion);
   }
 
 void FiniClr()
