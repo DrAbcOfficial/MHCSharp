@@ -35,50 +35,60 @@ namespace MHSharpLibrary.Event
     public delegate void HudChatInputPositionEventHandler(int x, int y);
     public delegate int HudGetPayerTeamEventHandler(int iplayer);
 
-    public class CExportEvents
+    public struct ExportEventsPublisherStuct
     {
-        public HudInitializeEventHandler? Initialize = null;
-        public HudEventHandler? HudInit = null;
-        public HudVidInitEventHandler? HudVidInit = null;
-        public HudRedrawEventHandler? HudReDraw = null;
-        public HudUpdateClientDataEventHandler? HudUpdateClientData = null;
-        public HudEventHandler? HudReset = null;
-        public HudClientMoveEventHandler? HudClientMove = null;
-        public HudClientMoveInitEventHandler? HudClientMoveInit = null;
-        public HudTextureTypeEventHandler? HudTextureType = null;
-        public HudEventHandler? InActivateMouse = null;
-        public HudEventHandler? InDeactivateMouse = null;
-        public HudInMonseEventEventHandler? InMouseEvent = null;
-        public HudEventHandler? InClearStates = null;
-        public HudEventHandler? InAccumulate = null;
-        public HudClCreateMoveEventHandler? ClCreateMove = null;
-        public HudIsThirdPersonEventHandler? IsThridPerson = null;
-        public HudClGetCameraOffsetEventHandler? ClCameraOffset = null;
-        public HudKBFindEventHandler? KbFind = null;
-        public HudEventHandler? CamThink = null;
-        public HudCalcRefEventHandler? VCalcRefDef = null;
-        public HudAddEntityEventHandler? HudAddEntity = null;
-        public HudEventHandler? HudCreateEntities = null;
-        public HudEventHandler? HudDrawNormalTriangles = null;
-        public HudEventHandler? HudDrawTransparentTrianges = null;
-        public HudStudioEventHandler? HudStudioEvent = null;
-        public HudPostRunCmdEventHandler? HudPostRunCmd = null;
-        public HudEventHandler? HudShutDown = null;
-        public HudTxferLocalOverridesEventHandler? HudTxferLocalOverrides = null;
-        public HudProcessPlayerStateEventHandler? HudProcessPlayerState = null;
-        public HudTxferPredictionDataEventHandler? HudTxferPredictionData = null;
-        public HudDemoReadEventHandler? DemoReadBuffer = null;
-        public HudConnectionlessEventHandler? HudConnectionlessPack = null;
-        public HudGetHullBoundsEventHandler? HudGetHullBounds = null;
-        public HudFrameEventHandler? HudFrame = null;
-        public HudKeyEventEventHandler? HudKeyEvent = null;
-        public HudTempEntUpdateEventHandler? HudTempEntUpdate = null;
-        public HudGetUserEntityEventHandler? HudGetUserEntity = null;
-        public HudVoiceStatusEventHandler? HudVoiceStatus = null;
-        public HudDirectorMessageEventHandler? HudDirectorMessage = null;
-        public HudStudioInterFaceEventHandler? HudGetStudioModelInterface = null;
-        public HudChatInputPositionEventHandler? HudChatInputPosition = null;
-        public HudGetPayerTeamEventHandler? HudGetPayerTeam = null;
-        public HudEventHandler? ClientFactory = null;
+        public event HudInitializeEventHandler? Initialize = null;
+        public void OnInitialize(CLEngineFucsStruct EngineFuncs, int iVersion)
+        {
+            Initialize?.Invoke(EngineFuncs, iVersion);
+        }
+        public event HudEventHandler? HudInit = null;
+        public void OnHudInit()
+        {
+            HudInit?.Invoke();
+        }
+        public event HudVidInitEventHandler? HudVidInit = null;
+        public event HudRedrawEventHandler? HudReDraw = null;
+        public event HudUpdateClientDataEventHandler? HudUpdateClientData = null;
+        public event HudEventHandler? HudReset = null;
+        public event HudClientMoveEventHandler? HudClientMove = null;
+        public event HudClientMoveInitEventHandler? HudClientMoveInit = null;
+        public event HudTextureTypeEventHandler? HudTextureType = null;
+        public event HudEventHandler? InActivateMouse = null;
+        public event HudEventHandler? InDeactivateMouse = null;
+        public event HudInMonseEventEventHandler? InMouseEvent = null;
+        public event HudEventHandler? InClearStates = null;
+        public event HudEventHandler? InAccumulate = null;
+        public event HudClCreateMoveEventHandler? ClCreateMove = null;
+        public event HudIsThirdPersonEventHandler? IsThridPerson = null;
+        public event HudClGetCameraOffsetEventHandler? ClCameraOffset = null;
+        public event HudKBFindEventHandler? KbFind = null;
+        public event HudEventHandler? CamThink = null;
+        public event HudCalcRefEventHandler? VCalcRefDef = null;
+        public event HudAddEntityEventHandler? HudAddEntity = null;
+        public event HudEventHandler? HudCreateEntities = null;
+        public event HudEventHandler? HudDrawNormalTriangles = null;
+        public event HudEventHandler? HudDrawTransparentTrianges = null;
+        public event HudStudioEventHandler? HudStudioEvent = null;
+        public event HudPostRunCmdEventHandler? HudPostRunCmd = null;
+        public event HudEventHandler? HudShutDown = null;
+        public event HudTxferLocalOverridesEventHandler? HudTxferLocalOverrides = null;
+        public event HudProcessPlayerStateEventHandler? HudProcessPlayerState = null;
+        public event HudTxferPredictionDataEventHandler? HudTxferPredictionData = null;
+        public event HudDemoReadEventHandler? DemoReadBuffer = null;
+        public event HudConnectionlessEventHandler? HudConnectionlessPack = null;
+        public event HudGetHullBoundsEventHandler? HudGetHullBounds = null;
+        public event HudFrameEventHandler? HudFrame = null;
+        public event HudKeyEventEventHandler? HudKeyEvent = null;
+        public event HudTempEntUpdateEventHandler? HudTempEntUpdate = null;
+        public event HudGetUserEntityEventHandler? HudGetUserEntity = null;
+        public event HudVoiceStatusEventHandler? HudVoiceStatus = null;
+        public event HudDirectorMessageEventHandler? HudDirectorMessage = null;
+        public event HudStudioInterFaceEventHandler? HudGetStudioModelInterface = null;
+        public event HudChatInputPositionEventHandler? HudChatInputPosition = null;
+        public event HudGetPayerTeamEventHandler? HudGetPayerTeam = null;
+        public event HudEventHandler? ClientFactory = null;
+
+        public ExportEventsPublisherStuct() { }
     }
 }

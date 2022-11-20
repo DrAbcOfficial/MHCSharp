@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,22 +14,17 @@ namespace MHHelloWorld;
 
 public class MyExportFuncs
 {
-    // 保存好的原版函数
-    public static ClExportFuncsStruct IExportFuncs;
-
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     public unsafe static void FuckWorld()
     {
-        string message = "Fuck World\n";
-        byte* cplain = Utility.GetNativeString(message);
-        CSharpPlugin.IEngineFucs.ConsolePrint(cplain);
+        MHUtility.SendNativeString("Fuck World\n", (IntPtr ptr) =>
+        {
+            CSharpPlugin.IEngineFucs.ConsolePrint((byte*)ptr.ToPointer());
+        });    
     }
 
     public unsafe static void HudInit()
     {
-        string message = "mh_fuck";
-        byte* cplain = Utility.GetNativeString(message);
-        CSharpPlugin.IEngineFucs.AddCommand(cplain, &FuckWorld);
-        IExportFuncs.HudInit();
+        CSharpPlugin.IEngineFucs.AddCommand(MHUtility.GetNativeString("mh_fuck"), &FuckWorld);
     }
 }

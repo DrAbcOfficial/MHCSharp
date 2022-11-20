@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MHSharpLibrary\MHSharpLibrary.csproj" />
+    <ProjectReference Include="..\MHSharpLibrary\MHSharpLibrary.csproj">
+    </ProjectReference>
   </ItemGroup>
-
 </Project>

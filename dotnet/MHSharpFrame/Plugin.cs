@@ -30,11 +30,15 @@ public class Plugin
 {
     public static List<CSharpPlugin> sharpPlugins = new List<CSharpPlugin>();
     public static CLEngineFucsStruct IEngineFucs;
+    public static MetaHookApiStruct IMetaHookApi;
+    //C# event object
+    public static ExportEventsPublisherStuct IHudEvent = new ExportEventsPublisherStuct();
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     public static unsafe void Init(MetaHookApiStruct* Api, MHInterfaceStruct* Interface, MHEngineSaveStrct* Save)
     {
-        MyExportFuncs.Init();
+        IMetaHookApi = *Api;
+        FrameExportFuncs.Init();
         //Load every Dll
         List<string> plugins = new List<string>();
         using (StreamReader sr = new StreamReader(string.Format("{0}/metahook/configs/plugins_dotnet.lst", "svencoop")))
@@ -58,6 +62,7 @@ public class Plugin
                     plugin.Name = s;
                     plugin.Handle = Activator.CreateInstance(t);
                     plugin.PluginInit = t.GetMethod("PluginInit");
+                    plugin.LoadClient = t.GetMethod("LoadClient");
                     plugin.LoadEngine = t.GetMethod("LoadEngine");
                     plugin.ShutDown = t.GetMethod("ShutDown");
                     plugin.ExitGame = t.GetMethod("ExitGame");
@@ -68,7 +73,7 @@ public class Plugin
         }
         foreach (CSharpPlugin i in sharpPlugins)
         {
-            i.PluginInit?.Invoke(i.Handle, new object[] { *Api, *Interface, *Save });
+            i.PluginInit?.Invoke(i.Handle, new object[] { new IntPtr(Api), new IntPtr(Interface), new IntPtr(Save) });
         }
     }
 
@@ -78,34 +83,26 @@ public class Plugin
         IEngineFucs = *lEngineFucs;
         foreach (CSharpPlugin i in sharpPlugins)
         {
-            i.LoadEngine?.Invoke(i.Handle, new object[] { *lEngineFucs });
+            i.LoadEngine?.Invoke(i.Handle, new object[] { new IntPtr(lEngineFucs) });
         }
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     public static unsafe void LoadClient(ClExportFuncsStruct* IExportFunc)
     {
-        MyExportFuncs.IExportFuncs = *IExportFunc;
+        FrameExportFuncs.IExportFuncs = *IExportFunc;
         // 必须覆盖，在这个事件中驱动单线程协程的调度器
-        IExportFunc->HudFrame = &MyExportFuncs.HudFrame;
+        IExportFunc->HudFrame = &FrameExportFuncs.HudFrame;
         //注册
-        IExportFunc->HudInit = &MyExportFuncs.HudInit;
+        IExportFunc->HudInit = &FrameExportFuncs.HudInit;
 
         foreach (CSharpPlugin i in sharpPlugins)
         {
-            if (i.LoadClient != null)
-            {
-                CExportEvents exportTable = new CExportEvents();
-                i.LoadClient.Invoke(i.Handle, new object[] { exportTable });
-
-                Type type = typeof(CExportEvents);
-                PropertyInfo[] props = type.GetProperties();
-                foreach (PropertyInfo p in props)
-                {
-                    type.GetProperty(p.Name)?.GetValue(MyExportFuncs.pEvent);
-                    //TODO: 这里需要使用反射
-                }
-            }
+            IntPtr ptr = Marshal.AllocHGlobal(Marshal.SizeOf(IHudEvent));
+            Marshal.StructureToPtr(IHudEvent, ptr, false);
+            i.LoadClient?.Invoke(i.Handle, new object[] { ptr });
+            IHudEvent = *(ExportEventsPublisherStuct*)ptr;
+            Marshal.FreeHGlobal(ptr);
         }
     }
 
@@ -130,7 +127,6 @@ public class Plugin
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     public static unsafe byte* GetVersion()
     {
-        string version = Assembly.GetExecutingAssembly().GetName().ToString();
-        return Utility.GetNativeString(version);
+        return MHUtility.GetNativeString(Assembly.GetExecutingAssembly().GetName().ToString());
     }
 }

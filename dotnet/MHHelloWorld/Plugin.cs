@@ -19,19 +19,20 @@ public class CSharpPlugin
     public static MetaHookApiStruct MetaHookApi;
     public static CLEngineFucsStruct IEngineFucs;
 
-    public void PluginInit(MetaHookApiStruct Api, IntPtr Interface, MHEngineSaveStrct Save)
+    public unsafe void PluginInit(MetaHookApiStruct* Api, IntPtr Interface, MHEngineSaveStrct* Save)
     {
-        MetaHookApi =  Api;
+        MetaHookApi = *Api;
     }
 
-    public void LoadEngine(CLEngineFucsStruct lEngineFucs)
+    public unsafe void LoadEngine(CLEngineFucsStruct* lEngineFucs)
     {
-        IEngineFucs = lEngineFucs;
+        IEngineFucs = *lEngineFucs;
     }
 
-    public void LoadClient(CExportEvents IExportFunc)
+    public unsafe void LoadClient(ExportEventsPublisherStuct* IExportFunc)
     {
-        IExportFunc.HudInit = MyExportFuncs.HudInit;
+        //订阅
+        IExportFunc->HudInit += MyExportFuncs.HudInit;
     }
 
     public string GetVersion()
