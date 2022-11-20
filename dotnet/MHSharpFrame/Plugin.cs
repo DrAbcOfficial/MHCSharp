@@ -95,6 +95,7 @@ public class Plugin
         IExportFunc->HudFrame = &FrameExportFuncs.HudFrame;
         //注册
         IExportFunc->HudInit = &FrameExportFuncs.HudInit;
+        IExportFunc->HudReDraw = &FrameExportFuncs.HudReDraw;
 
         foreach (CSharpPlugin i in sharpPlugins)
         {

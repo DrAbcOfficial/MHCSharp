@@ -172,6 +172,7 @@ public unsafe struct CLEngineFucsStruct
     public delegate* unmanaged[Cdecl]<byte*, byte*, SequenceEntryStrct*> SequenceGet = null;
     public delegate* unmanaged[Cdecl]<int, int, int, RectStruct*, int, int, int, int, void> SprDrawGeneric = null;
     public delegate* unmanaged[Cdecl]<byte*, int, int*, SequenceEntryStrct*> SequecePickSentence = null;
+    //int x, int y, const char *str, int r, int g, int b
     public delegate* unmanaged[Cdecl]<int, int, byte*, int, int, int, int> DrawString = null;
     public delegate* unmanaged[Cdecl]<int, int, byte*, int, int, int, int> DrawStringReverse = null;
     public delegate* unmanaged[Cdecl]<byte*, byte*> LocalPlayerInfoValueForKey = null;

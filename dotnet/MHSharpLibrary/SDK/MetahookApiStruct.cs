@@ -63,7 +63,8 @@ public unsafe struct MetaHookApiStruct
     public IntPtr HookUserMsg = 0;             // 不会抄
     public IntPtr HookCvarCallback = 0;             // 不会抄
     public IntPtr HookCmd = 0;             // 不会抄
-    public delegate* unmanaged[Cdecl]<byte*, void> SysError = null;             // 不会抄
+    //真的需要使用VA吗？string.Format以后再上传非托管不就好了吗
+    public delegate* unmanaged[Cdecl]<byte*, void> SysError = null;
     public delegate* unmanaged[Cdecl]<void*, int, IntPtr,void*> ReverseSearchFunctionBeginEx = null;
     public MetaHookApiStruct()
     {

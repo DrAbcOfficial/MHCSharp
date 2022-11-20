@@ -47,7 +47,6 @@ public class FrameExportFuncs
             Plugin.IEngineFucs.ConsolePrint((byte*)ptr.ToPointer());
         });
     }
-
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     public unsafe static void HudInit()
     {
@@ -55,5 +54,13 @@ public class FrameExportFuncs
         Plugin.IHudEvent.OnHudInit();
 
         IExportFuncs.HudInit();
+    }
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public unsafe static int HudReDraw(float flTime, int iFrame)
+    {
+        int? result = Plugin.IHudEvent.OnHudReDraw(flTime, iFrame);
+        if (result != null && result != 0)
+            return (int)result;
+        return IExportFuncs.HudReDraw(flTime, iFrame);
     }
 }

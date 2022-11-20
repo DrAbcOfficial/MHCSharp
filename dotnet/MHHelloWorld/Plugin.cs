@@ -33,6 +33,7 @@ public class CSharpPlugin
     {
         //订阅
         IExportFunc->HudInit += MyExportFuncs.HudInit;
+        IExportFunc->HudReDraw += MyExportFuncs.HudReDraw;
     }
 
     public string GetVersion()

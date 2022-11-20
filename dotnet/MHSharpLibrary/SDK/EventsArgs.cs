@@ -49,6 +49,10 @@ namespace MHSharpLibrary.Event
         }
         public event HudVidInitEventHandler? HudVidInit = null;
         public event HudRedrawEventHandler? HudReDraw = null;
+        public int? OnHudReDraw(float flTime, int iFrame)
+        {
+            return HudReDraw?.Invoke(flTime, iFrame);
+        }
         public event HudUpdateClientDataEventHandler? HudUpdateClientData = null;
         public event HudEventHandler? HudReset = null;
         public event HudClientMoveEventHandler? HudClientMove = null;

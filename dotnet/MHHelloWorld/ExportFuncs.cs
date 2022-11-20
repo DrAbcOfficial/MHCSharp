@@ -1,14 +1,6 @@
-﻿using MHSharpLibrary.SDK;
-using MHSharpLibrary.Util;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
+﻿using MHSharpLibrary.Util;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MHHelloWorld;
 
@@ -20,11 +12,20 @@ public class MyExportFuncs
         MHUtility.SendNativeString("Fuck World\n", (IntPtr ptr) =>
         {
             CSharpPlugin.IEngineFucs.ConsolePrint((byte*)ptr.ToPointer());
-        });    
+        });
     }
 
     public unsafe static void HudInit()
     {
         CSharpPlugin.IEngineFucs.AddCommand(MHUtility.GetNativeString("mh_fuck"), &FuckWorld);
+    }
+
+    public unsafe static int HudReDraw(float flTime, int iFrame)
+    {
+        MHUtility.SendNativeString("fuck world", (IntPtr ptr) =>
+        {
+            CSharpPlugin.IEngineFucs.DrawString(512, 512, (byte*)ptr.ToPointer(), 0, 255, 0);
+        });
+        return 0;
     }
 }
