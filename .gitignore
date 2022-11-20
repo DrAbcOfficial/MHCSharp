@@ -10,3 +10,8 @@
 /dotnet/MHSharpLibrary/bin
 /dotnet/MHSharpLibrary/obj
 /dotnet/MHSharpLibrary/Properties/PublishProfiles
+/dotnet/MHSharpFrame/bin/Debug/net7.0
+/dotnet/MHSharpFrame/obj/Debug/net7.0/ref
+/dotnet/MHSharpFrame/obj/Debug/net7.0/refint
+/dotnet/MHSharpFrame/obj/Debug/net7.0
+/dotnet/MHSharpFrame/obj
